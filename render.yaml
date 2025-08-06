@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: natsly-coloring
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PI_API_KEY
+        value: j8gbuzkznof5pgm8brspofdeukjmfrg2oykwkml5iqrte96b9kkhnkvhvdmb6j54
+      - key: PI_WALLET_PRIVATE_SEED
+        value: SAEA332FGTFKGAKFFWUPEKOPNG474EAB2XVC6FQI77V5BPJNSA7LB5XZ
+      - key: PI_APP_WALLET_ADDRESS
+        value: GDM6PFWAUC32DUVB54N3DXSR6PPLNYKDJUAHXWVJDMMLHJQBYC4AMXTZ
+      - key: PI_APP_ID
+        value: Natsly
+      - key: PI_SANDBOX
+        value: false

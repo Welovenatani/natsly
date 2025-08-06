@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Artwork</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f0f0f0;
+            text-align: center;
+        }
+        
+        .artwork-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .artwork-title {
+            font-size: 2rem;
+            color: #6a5acd;
+            margin-bottom: 20px;
+        }
+        
+        .artwork-image {
+            max-width: 90%;
+            max-height: 60vh;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            background: #6a5acd;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="artwork-container">
+        <h1 class="artwork-title">Your Artwork</h1>
+        <img src="{{ url_for('static', filename='user_artworks/' + filename) }}" alt="Your Artwork" class="artwork-image">
+        <div>
+            <button class="btn" onclick="window.location.href='/'">Back to Gallery</button>
+            <button class="btn" onclick="window.print()">Print</button>
+        </div>
+    </div>
+</body>
+</html>

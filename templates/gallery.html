@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Natsly Gallery</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6a5acd;
+      --secondary: #9370db;
+      --accent: #5d8aa8;
+      --light-bg: #f8f9fa;
+      --card-bg: rgba(255, 255, 255, 0.8);
+      --text: #333;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--light-bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+      padding-bottom: 50px;
+      background-image: radial-gradient(#e2d1f9 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    
+    .gallery-container {
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .gallery-title {
+      text-align: center;
+      margin: 20px 0 30px;
+      color: var(--primary);
+      font-size: 2.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    
+    .gallery-title::after {
+      content: '';
+      display: block;
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      margin: 10px auto;
+      border-radius: 2px;
+    }
+    
+    .category-section {
+      margin-bottom: 40px;
+      background: var(--card-bg);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      color: white;
+    }
+    
+    .category-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    .art-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+    
+    .art-item {
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      aspect-ratio: 1/1;
+      background: white;
+      position: relative;
+      transition: all 0.3s ease;
+      transform: translateY(0);
+      cursor: pointer;
+    }
+    
+    .art-item:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    }
+    
+    .art-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s;
+    }
+    
+    .art-item:hover img {
+      transform: scale(1.08);
+    }
+    
+    .art-name {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+      color: white;
+      padding: 10px;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    
+    .daily-card {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 25px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+    
+    .daily-card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+      transform: rotate(30deg);
+    }
+    
+    .daily-title {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .daily-title i {
+      font-size: 1.5rem;
+    }
+    
+    .daily-image {
+      width: 80%;
+      max-width: 300px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      margin: 20px 0;
+      border: 3px solid white;
+    }
+    
+    .ai-generator {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 25px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      box-shadow: var(--shadow);
+      margin-bottom: 30px;
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .ai-prompt-input {
+      width: 100%;
+      padding: 15px 20px;
+      border-radius: 50px;
+      border: 2px solid #e0e0e0;
+      margin: 10px 0 20px;
+      font-size: 1rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      transition: all 0.3s;
+      background: rgba(255, 255, 255, 0.9);
+    }
+    
+    .ai-prompt-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(106, 90, 205, 0.2);
+    }
+    
+    .ai-preview {
+      width: 100%;
+      max-height: 250px;
+      object-fit: contain;
+      margin: 20px 0;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      display: none;
+    }
+    
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px 30px;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin: 10px 5px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn:hover {
+      background: var(--secondary);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    
+    .btn:active {
+      transform: translateY(1px);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn-outline:hover {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .music-section {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 25px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      box-shadow: var(--shadow);
+      margin-top: 20px;
+    }
+    
+    .music-options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 15px;
+    }
+    
+    .music-option {
+      padding: 12px 20px;
+      background: white;
+      border-radius: 50px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+    
+    .music-option:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .music-option.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(106, 90, 205, 0.3);
+    }
+    
+    .floating-leaves {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    .leaf {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0.7;
+      animation: float 15s infinite linear;
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(100px) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.7; }
+      90% { opacity: 0.7; }
+      100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+    }
+    
+    .ai-result-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .loading-spinner {
+      display: none;
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(106, 90, 205, 0.2);
+      border-radius: 50%;
+      border-top: 5px solid var(--primary);
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .error-message {
+      color: #e74c3c;
+      margin: 10px 0;
+      display: none;
+    }
+    
+    .category-container {
+      display: none;
+    }
+    
+    .category-container.active {
+      display: block;
+    }
+    
+    .back-to-gallery {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      color: var(--primary);
+      cursor: pointer;
+      font-weight: 500;
+    }
+    
+    @media (max-width: 768px) {
+      .art-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 15px;
+        padding: 15px;
+      }
+      
+      .gallery-title {
+        font-size: 2rem;
+      }
+      
+      .category-name {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-leaves">
+    <div class="leaf" style="left: 5%; animation-delay: 0s;">🍃</div>
+    <div class="leaf" style="left: 15%; animation-delay: 2s;">🍂</div>
+    <div class="leaf" style="left: 25%; animation-delay: 4s;">🌸</div>
+    <div class="leaf" style="left: 75%; animation-delay: 6s;">🍁</div>
+    <div class="leaf" style="left: 85%; animation-delay: 8s;">🌿</div>
+    <div class="leaf" style="left: 95%; animation-delay: 10s;">🌱</div>
+  </div>
+  
+  <div class="gallery-container">
+    <h1 class="gallery-title">Natsly Coloring Gallery</h1>
+    
+    <div class="daily-card">
+      <div class="daily-title">
+        <i class="fas fa-calendar-day"></i> Today's Artwork
+      </div>
+      <img src="{{ daily_image }}" alt="Daily Art" class="daily-image">
+      <a href="{{ url_for('coloring', category=daily_category, image_name=daily_filename) }}" class="btn">
+        <i class="fas fa-paint-brush"></i> Color Now
+      </a>
+    </div>
+    
+    <div class="ai-generator">
+      <h2 class="section-title">
+        <i class="fas fa-wand-magic-sparkles"></i> Create AI Art
+      </h2>
+      <p>Describe what you want to color (e.g. "mandala line art", "cat outline")</p>
+      <input type="text" id="ai-prompt" class="ai-prompt-input" placeholder="Enter your art description...">
+      <button class="btn" onclick="generateArt()">
+        <i class="fas fa-magic"></i> Generate Art
+      </button>
+      
+      <div class="ai-result-container">
+        <div class="loading-spinner" id="ai-loader"></div>
+        <div class="error-message" id="ai-error">Couldn't generate art. Please try again.</div>
+        <img id="ai-preview" class="ai-preview">
+        <button id="use-ai-btn" class="btn btn-outline" style="display:none; margin-top: 15px;">
+          <i class="fas fa-save"></i> Save & Use This Art
+        </button>
+      </div>
+    </div>
+    
+    {% for category, images in categories.items() %}
+    <div class="category-section">
+      <div class="category-header">
+        <div class="category-name">{{ category.capitalize() }}</div>
+        <span>{{ images|length }} designs</span>
+      </div>
+      
+      <div class="art-grid">
+        {% for image in images %}
+        <div class="art-item" onclick="window.location.href='{{ url_for('coloring', category=category, image_name=image) }}'">
+          <img src="{{ url_for('static', filename='line_art/' + category + '/' + image) }}" alt="{{ image }}">
+          <div class="art-name">{{ image.split('.')[0] }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+    
+    <div class="music-section">
+      <h2 class="section-title">
+        <i class="fas fa-music"></i> Relaxing Sounds
+      </h2>
+      <p>Choose background music for your coloring session</p>
+      <div class="music-options">
+        {% for music in music_files %}
+        <div class="music-option" data-music="{{ music }}">
+          <i class="fas fa-play-circle"></i> {{ music.split('.')[0] }}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Set active music option
+    document.querySelectorAll('.music-option').forEach(option => {
+      option.addEventListener('click', function() {
+        document.querySelectorAll('.music-option').forEach(opt => {
+          opt.classList.remove('active');
+          opt.innerHTML = `<i class="fas fa-play-circle"></i> ${opt.dataset.music.split('.')[0]}`;
+        });
+        
+        this.classList.add('active');
+        this.innerHTML = `<i class="fas fa-volume-up"></i> ${this.dataset.music.split('.')[0]}`;
+        localStorage.setItem('selectedMusic', this.dataset.music);
+      });
+    });
+    
+    // Load selected music from localStorage
+    const selectedMusic = localStorage.getItem('selectedMusic');
+    if (selectedMusic) {
+      document.querySelectorAll('.music-option').forEach(opt => {
+        if (opt.dataset.music === selectedMusic) {
+          opt.classList.add('active');
+          opt.innerHTML = `<i class="fas fa-volume-up"></i> ${opt.dataset.music.split('.')[0]}`;
+        }
+      });
+    }
+    
+    // AI Art Generation with better feedback
+    function generateArt() {
+      const prompt = document.getElementById('ai-prompt').value.trim();
+      const preview = document.getElementById('ai-preview');
+      const useBtn = document.getElementById('use-ai-btn');
+      const loader = document.getElementById('ai-loader');
+      const errorMsg = document.getElementById('ai-error');
+      
+      if (!prompt) {
+        alert('Please enter a description for your art');
+        return;
+      }
+      
+      preview.style.display = 'none';
+      useBtn.style.display = 'none';
+      errorMsg.style.display = 'none';
+      loader.style.display = 'block';
+      
+      fetch("{{ url_for('ai') }}", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: prompt })
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('API error');
+        return response.json();
+      })
+      .then(data => {
+        loader.style.display = 'none';
+        preview.src = data.image;
+        preview.style.display = 'block';
+        useBtn.style.display = 'block';
+        errorMsg.style.display = 'none';
+        
+        // Set the use button to save the image
+        useBtn.onclick = () => {
+          loader.style.display = 'block';
+          useBtn.disabled = true;
+          
+          fetch(data.image)
+            .then(res => res.blob())
+            .then(blob => {
+              const formData = new FormData();
+              const filename = `ai_${Date.now()}.png`;
+              formData.append('file', blob, filename);
+              
+              fetch("{{ url_for('upload_sketch') }}", {
+                method: 'POST',
+                body: formData
+              })
+              .then(res => res.json())
+              .then(data => {
+                if (data.status === 'success') {
+                  alert('Art saved successfully!');
+                  window.location.href = "{{ url_for('gallery') }}";
+                } else {
+                  alert('Error saving art: ' + (data.error || 'Please try again'));
+                }
+              })
+              .catch(() => {
+                alert('Error saving art. Please try again.');
+              })
+              .finally(() => {
+                loader.style.display = 'none';
+                useBtn.disabled = false;
+              });
+            });
+        };
+      })
+      .catch(error => {
+        console.error('AI error:', error);
+        loader.style.display = 'none';
+        errorMsg.style.display = 'block';
+        preview.style.display = 'none';
+        useBtn.style.display = 'none';
+      });
+    }
+  </script>
+</body>
+</html>

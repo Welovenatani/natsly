@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Your Sketch</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .upload-container {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .upload-area {
+      border: 2px dashed #6a5acd;
+      border-radius: 10px;
+      padding: 40px 20px;
+      text-align: center;
+      margin: 20px 0;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: #f9f7ff;
+    }
+    
+    .upload-area:hover {
+      background: #f0edff;
+    }
+    
+    .upload-icon {
+      font-size: 3rem;
+      color: #6a5acd;
+      margin-bottom: 15px;
+    }
+    
+    .preview-container {
+      display: flex;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    
+    .preview-box {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+    
+    .preview-image {
+      max-width: 100%;
+      max-height: 200px;
+      margin-top: 10px;
+    }
+    
+    .note {
+      background: #f0f7ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    
+    #process-btn {
+      width: 100%;
+      padding: 15px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Upload Your Sketch</h1>
+    <p class="tagline">Share your artwork with the community</p>
+  </header>
+  
+  <div class="app-container">
+    <div class="upload-container">
+      <h2><i class="fas fa-cloud-upload-alt"></i> Upload Line Art</h2>
+      <p>Upload a black and white sketch for others to color. Clear line art works best!</p>
+      
+      <div class="note">
+        <p><i class="fas fa-lightbulb"></i> Tip: Images with clear outlines and solid backgrounds work best for coloring.</p>
+      </div>
+      
+      <div class="upload-area" id="upload-area">
+        <div class="upload-icon">
+          <i class="fas fa-cloud-upload-alt"></i>
+        </div>
+        <h3>Click or Drag to Upload</h3>
+        <p>PNG or JPG, max 5MB</p>
+        <input type="file" id="file-input" accept="image/*" style="display: none;">
+      </div>
+      
+      <div class="preview-container">
+        <div class="preview-box">
+          <h4>Original</h4>
+          <img id="original-preview" class="preview-image">
+        </div>
+        <div class="preview-box">
+          <h4>Line Art</h4>
+          <img id="lineart-preview" class="preview-image">
+        </div>
+      </div>
+      
+      <div id="upload-status" style="margin: 20px 0;"></div>
+      
+      <button class="pi-btn" id="process-btn" style="display: none;">
+        <i class="fas fa-magic"></i> Process & Upload
+      </button>
+    </div>
+    
+    <div class="pi-auth" style="margin-top: 20px;">
+      <button class="pi-btn" onclick="window.history.back()">
+        <i class="fas fa-arrow-left"></i> Back to Gallery
+      </button>
+    </div>
+  </div>
+  
+  <script>
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('file-input');
+    const originalPreview = document.getElementById('original-preview');
+    const lineartPreview = document.getElementById('lineart-preview');
+    const processBtn = document.getElementById('process-btn');
+    const uploadStatus = document.getElementById('upload-status');
+    let selectedFile = null;
+    
+    // Handle file selection
+    uploadArea.addEventListener('click', () => fileInput.click());
+    
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        selectedFile = e.target.files[0];
+        
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          originalPreview.src = event.target.result;
+          originalPreview.style.display = 'block';
+          
+          // Show process button
+          processBtn.style.display = 'block';
+          uploadStatus.innerHTML = '';
+        };
+        reader.readAsDataURL(selectedFile);
+      }
+    });
+    
+    // Process and upload
+    processBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+      
+      uploadStatus.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Processing image...</p>';
+      
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      
+      try {
+        const response = await fetch('/upload_artwork', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+          lineartPreview.src = data.url;
+          lineartPreview.style.display = 'block';
+          
+          uploadStatus.innerHTML = `
+            <div style="background: #e6f7ee; padding: 15px; border-radius: 8px;">
+              <p><i class="fas fa-check-circle" style="color: #2ecc71;"></i> 
+              Upload successful! Your sketch is now available for others to color.</p>
+              <p>You'll earn 80% of any Pi payments when users download colored versions!</p>
+            </div>
+          `;
+          
+          processBtn.style.display = 'none';
+        } else {
+          uploadStatus.innerHTML = `<p style="color: #e74c3c;">Error: ${data.error || 'Upload failed'}</p>`;
+        }
+      } catch (error) {
+        uploadStatus.innerHTML = `<p style="color: #e74c3c;">Error: ${error.message}</p>`;
+      }
+    });
+    
+    // Drag and drop handling
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.style.backgroundColor = '#f0f7ff';
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.style.backgroundColor = '';
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.style.backgroundColor = '';
+      
+      if (e.dataTransfer.files.length > 0) {
+        fileInput.files = e.dataTransfer.files;
+        const event = new Event('change', { bubbles: true });
+        fileInput.dispatchEvent(event);
+      }
+    });
+  </script>
+</body>
+</html>

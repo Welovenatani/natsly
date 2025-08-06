@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pattern Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .exists-true { color: green; }
+        .exists-false { color: red; font-weight: bold; }
+        img { max-width: 100px; display: block; }
+        .path-info { background: #f0f0f0; padding: 15px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Pattern Debug Information</h1>
+    
+    <div class="path-info">
+        <p><strong>Static Folder:</strong> {{ static_folder }}</p>
+        <p><strong>Universal Path:</strong> {{ universal_path }}</p>
+        <p><strong>Current Working Directory:</strong> {{ cwd }}</p>
+        <p><a href="/debug_static">Debug Static Files</a></p>
+    </div>
+    
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Filename</th>
+            <th>Path</th>
+            <th>Exists</th>
+            <th>Size</th>
+            <th>Direct URL</th>
+            <th>Absolute URL</th>
+            <th>Image Preview</th>
+        </tr>
+        {% for p in patterns %}
+        <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.name }}</td>
+            <td>{{ p.filename }}</td>
+            <td>{{ p.path }}</td>
+            <td class="exists-{{ p.exists|lower }}">
+                {{ 'Yes' if p.exists else 'No' }}
+            </td>
+            <td>{{ p.size }} bytes</td>
+            <td>
+                <a href="{{ url_for('static', filename='patterns/universal/' + p.filename) }}" target="_blank">
+                    Static URL
+                </a>
+            </td>
+            <td>
+                <a href="/abs_pattern/{{ p.filename }}" target="_blank">
+                    Absolute Path
+                </a>
+            </td>
+            <td>
+                {% if p.exists %}
+                <img src="{{ url_for('static', filename='patterns/universal/' + p.filename) }}"
+                     onerror="this.style.border='2px solid red'">
+                {% else %}
+                N/A
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

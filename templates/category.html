@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Natsly - {{ category.title() }} Models</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .model-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .model-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .model-icon {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+        
+        .model-icon i {
+            font-size: 3rem;
+            color: white;
+        }
+        
+        .model-name {
+            padding: 15px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>{{ category.title() }} Models</h1>
+        <p class="tagline">Choose a model to color</p>
+    </header>
+    
+    <div class="app-container">
+        <div class="models-grid">
+            {% for model in models %}
+            <a href="{{ url_for('model_page', category=category, model_id=model.id) }}" class="model-card">
+                <div class="model-icon">
+                    <i class="fas fa-{{
+                        'paw' if category == 'animals' else
+                        'leaf' if category == 'nature' else
+                        'dharmachakra' 
+                    }}"></i>
+                </div>
+                <div class="model-name">{{ model.name }}</div>
+            </a>
+            {% endfor %}
+        </div>
+        
+        <div class="pi-auth">
+            <button class="pi-btn" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+        </div>
+    </div>
+</body>
+</html>
