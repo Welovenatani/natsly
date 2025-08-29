@@ -10,16 +10,13 @@ from PIL import Image, ImageFilter
 import requests
 from flask_caching import Cache
 from dotenv import load_dotenv
-from pi_network import PiNetwork
+from pi_client import PiNetwork
 
 # Load environment variables
 load_dotenv()
 
 # Initialize Pi Network
-pi = PiNetwork(
-    api_key=os.getenv("PI_API_KEY"),
-    wallet_private_seed=os.getenv("PI_WALLET_PRIVATE_SEED")
-)
+pi = PiNetwork()
 
 # --- APP SETUP ---
 app = Flask(__name__, static_folder="static", template_folder="templates")

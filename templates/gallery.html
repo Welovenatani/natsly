@@ -516,7 +516,7 @@
       errorMsg.style.display = 'none';
       loader.style.display = 'block';
       
-      fetch("{{ url_for('ai') }}", {
+      fetch("{{ url_for('generate_ai_art') }}", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: prompt })
